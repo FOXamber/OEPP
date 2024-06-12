@@ -64,4 +64,4 @@ You can run the code using the following command, and the results will be in `re
 
 You can run the code using the following command, and the results will be in `log`. You can use TensorBoard to view the results.
 
-`python pdpp_train.py --multiprocessing-distributed --num_thread_reader=1 --cudnn_benchmark=1 --pin_memory --checkpoint_dir=whl --resume --dist-url='tcp://localhost:21723' --horizon=3 --feat='videoclip' --split=1 --para_mse=0.2 --para_ce=1.0 --lr=0.0005 --batch_size=32 --batch_size_val=32 --evaluate`
+`CUDA_VISIBLE_DEVICES=0 python pdpp_train.py --multiprocessing-distributed --num_thread_reader=1 --cudnn_benchmark=1 --pin_memory --checkpoint_dir=whl --resume --dist-url='tcp://localhost:21723' --horizon=3 --feat='videoclip' --split=1 --para_mse=0.2 --para_ce=1.0 --lr=0.0005 --batch_size=32 --batch_size_val=32 --evaluate`
