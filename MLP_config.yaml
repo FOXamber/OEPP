@@ -9,7 +9,7 @@ training:
   lr: 0.0001
   weight_decay: 0.00001
 model:
-  model_n: attention
+  model_n: MLP
   num_layers: 1
   num_heads: 1
 loss:

@@ -42,25 +42,15 @@ def task_match(gt_action, pre_action, task_info):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default="attention_config.yaml")
-    # parser.add_argument('--T',type=int, default=3)
-    # parser.add_argument('--split', type=int, default=1)
-    # parser.add_argument('--feat', type=str, default='videoclip')
-    # parser.add_argument('--model', type=str, default='attention')
-    # parser.add_argument('--epochs', type=int,default=200)
-    # parser.add_argument('--xita', type=float,default=0.2)
+
     #
     args = parser.parse_args()
-    # xita = args.xita
-    # split = args.split
-    # T = args.T #T=3,4,5,6
-    # feat = args.feat
-    # model_n = args.model
-    # epochs = args.epochs  # 50个epoch差不多了
+
 
     with open(args.config,'r') as file:
         config = yaml.safe_load(file)
 
-    # xita = config['loss']['xita']
+
     split = config['split']
     T = config['T']
     is_pad = config['is_pad']
@@ -72,7 +62,6 @@ if __name__ == '__main__':
     torch.manual_seed(random_seed)
     random.seed(random_seed)
 
-    #创建output
     output_dir = os.path.join('results', model_n,datetime.now().strftime("%m%d%H%M%S"))
     os.makedirs(output_dir)
     output_config = yaml.dump(config)
@@ -157,11 +146,7 @@ if __name__ == '__main__':
         model.train()
         for data in train_train_loader:
             _, _, _, frames,  action_list, action_tensors, _, labels, _ = data
-            #start_frames,end_frames,start_end_frames,action_list,mid_action_list,labels,mid_labels
-            # print(action_list)
-            #frames [B,6*512]
-            #action_list,是一个长度为T-2的list，每个部分都是一个tuple，包括B个str
-            #labels [B,T-2]
+
             frames = frames.cuda()
             labels = labels.cuda()
             pre_labels = torch.zeros(frames.shape[0],T).cuda()
@@ -187,14 +172,12 @@ if __name__ == '__main__':
                 gt_indices = label
                 pred_indices = torch.argmax(sim_logits_softmax, dim=1)
                 pre_labels[:,i] = pred_indices
-                # 比较预测结果的索引与 ground truth 的索引，得到一个布尔张量
+
                 correct_predictions = torch.eq(pred_indices, gt_indices)
                 num_correct = torch.sum(correct_predictions).item()
                 train_acc_num += num_correct
                 train_total_num += label.shape[0]
-            # pre_labels = torch.tensor(pre_labels,dtype=float,requires_grad=True).view(frames.shape[0],T,1)
-            # labels = torch.tensor(labels,dtype=float).view(frames.shape[0],T,1)
-            # dtw_loss = soft_dtw_cost(pre_labels,labels).mean()
+
             loss = config['loss']['ce_w']*ce_loss + config['loss']['mse_w']* mse_loss
             # loss = 0.8 * ce_loss + 0.2 * mse_loss
             optimizer.zero_grad()
@@ -217,25 +200,13 @@ if __name__ == '__main__':
             set_true = set()
             correct_f = 0
             _, _, _, frames,  action_list,_, _, labels, _ = data
-            # start_frames,end_frames,start_end_frames,action_list,mid_action_list,labels,mid_labels
-            # print(action_list)
-            #action_list for action in action_list
-            # frames [B,6*512]
-            # action_list,是一个长度为T-2的list，每个部分都是一个tuple，包括B个str
-            # labels [B,T-2]
+
             frames = frames.cuda()
             labels = labels.cuda()
             if model_n == 'MLP':
                 # action_tensors = action_tensors.cuda()
                 frames_embedding_list = model(frames)  # [[B,512],[B,512]]
-            # elif model_n == 'attention':
-            #     # action_tensors = torch.zeros(frames.shape[0], T, feat_dim).cuda()
-            #     frames = frames.view(-1, 2, 3 * feat_dim)
-            #     new_frames = torch.zeros(frames.shape[0], T, 3 * feat_dim, dtype=frames.dtype, device=frames.device)
-            #     new_frames[:, 0, :] = frames[:, 0, :]
-            #     new_frames[:, -1, :] = frames[:, -1, :]
-            #     input_tensor = new_frames  # [B,T,3*h_dim]
-            #     frames_embedding_list = model(input_tensor)  # [[B,512],[B,512]]
+
             elif model_n == 'attention':
                 frames_embedding_list = model(frames)  # [[B,512],[B,512]]
             # print(len(frames_embedding_list))
@@ -253,7 +224,7 @@ if __name__ == '__main__':
                 pred_indices = torch.argmax(sim_logits_softmax, dim=1)
                 set_pred.add(pred_indices[0].tolist())
                 set_true.add(gt_indices[0].tolist())
-                # 比较预测结果的索引与 ground truth 的索引，得到一个布尔张量
+
                 correct_predictions = torch.eq(pred_indices, gt_indices)
                 num_correct = torch.sum(correct_predictions).item()
                 if num_correct == 1:
@@ -294,25 +265,13 @@ if __name__ == '__main__':
         set_true = set()
         correct_f = 0
         _, _, _, frames, action_list, _, _, labels, _ = data
-        # start_frames,end_frames,start_end_frames,action_list,mid_action_list,labels,mid_labels
-        # print(action_list)
-        # action_list for action in action_list
-        # frames [B,6*512]
-        # action_list,是一个长度为T-2的list，每个部分都是一个tuple，包括B个str
-        # labels [B,T-2]
+
         frames = frames.cuda()
         labels = labels.cuda()
         if model_n == 'MLP':
             # action_tensors = action_tensors.cuda()
             frames_embedding_list = model(frames)  # [[B,512],[B,512]]
-        # elif model_n == 'attention':
-        #     # action_tensors = torch.zeros(frames.shape[0], T, feat_dim).cuda()
-        #     frames = frames.view(-1, 2, 3 * feat_dim)
-        #     new_frames = torch.zeros(frames.shape[0], T, 3 * feat_dim, dtype=frames.dtype, device=frames.device)
-        #     new_frames[:, 0, :] = frames[:, 0, :]
-        #     new_frames[:, -1, :] = frames[:, -1, :]
-        #     input_tensor = new_frames  # [B,T,3*h_dim]
-        #     frames_embedding_list = model(input_tensor)  # [[B,512],[B,512]]
+
         elif model_n == 'attention':
             frames_embedding_list = model(frames)  # [[B,512],[B,512]]
         # print(len(frames_embedding_list))
@@ -330,7 +289,7 @@ if __name__ == '__main__':
             pred_indices = torch.argmax(sim_logits_softmax, dim=1)
             set_pred.add(pred_indices[0].tolist())
             set_true.add(gt_indices[0].tolist())
-            # 比较预测结果的索引与 ground truth 的索引，得到一个布尔张量
+
             correct_predictions = torch.eq(pred_indices, gt_indices)
             num_correct = torch.sum(correct_predictions).item()
             if num_correct == 1:
@@ -365,25 +324,13 @@ if __name__ == '__main__':
         set_true = set()
         correct_f = 0
         _, _, _, frames, action_list, _, _, labels, _ = data
-        # start_frames,end_frames,start_end_frames,action_list,mid_action_list,labels,mid_labels
-        # print(action_list)
-        # action_list for action in action_list
-        # frames [B,6*512]
-        # action_list,是一个长度为T-2的list，每个部分都是一个tuple，包括B个str
-        # labels [B,T-2]
+
         frames = frames.cuda()
         labels = labels.cuda()
         if model_n == 'MLP':
             # action_tensors = action_tensors.cuda()
             frames_embedding_list = model(frames)  # [[B,512],[B,512]]
-        # elif model_n == 'attention':
-        #     # action_tensors = torch.zeros(frames.shape[0], T, feat_dim).cuda()
-        #     frames = frames.view(-1, 2, 3 * feat_dim)
-        #     new_frames = torch.zeros(frames.shape[0], T, 3 * feat_dim, dtype=frames.dtype, device=frames.device)
-        #     new_frames[:, 0, :] = frames[:, 0, :]
-        #     new_frames[:, -1, :] = frames[:, -1, :]
-        #     input_tensor = new_frames  # [B,T,3*h_dim]
-        #     frames_embedding_list = model(input_tensor)  # [[B,512],[B,512]]
+
         elif model_n == 'attention':
             frames_embedding_list = model(frames)  # [[B,512],[B,512]]
         # print(len(frames_embedding_list))
@@ -401,7 +348,7 @@ if __name__ == '__main__':
             pred_indices = torch.argmax(sim_logits_softmax, dim=1)
             set_pred.add(pred_indices[0].tolist())
             set_true.add(gt_indices[0].tolist())
-            # 比较预测结果的索引与 ground truth 的索引，得到一个布尔张量
+
             correct_predictions = torch.eq(pred_indices, gt_indices)
             num_correct = torch.sum(correct_predictions).item()
             if num_correct == 1:
@@ -435,25 +382,13 @@ if __name__ == '__main__':
         set_true = set()
         correct_f = 0
         _, _, _, frames, action_list, _, _, labels, _ = data
-        # start_frames,end_frames,start_end_frames,action_list,mid_action_list,labels,mid_labels
-        # print(action_list)
-        # action_list for action in action_list
-        # frames [B,6*512]
-        # action_list,是一个长度为T-2的list，每个部分都是一个tuple，包括B个str
-        # labels [B,T-2]
+
         frames = frames.cuda()
         labels = labels.cuda()
         if model_n == 'MLP':
             # action_tensors = action_tensors.cuda()
             frames_embedding_list = model(frames)  # [[B,512],[B,512]]
-        # elif model_n == 'attention':
-        #     # action_tensors = torch.zeros(frames.shape[0], T, feat_dim).cuda()
-        #     frames = frames.view(-1, 2, 3 * feat_dim)
-        #     new_frames = torch.zeros(frames.shape[0], T, 3 * feat_dim, dtype=frames.dtype, device=frames.device)
-        #     new_frames[:, 0, :] = frames[:, 0, :]
-        #     new_frames[:, -1, :] = frames[:, -1, :]
-        #     input_tensor = new_frames  # [B,T,3*h_dim]
-        #     frames_embedding_list = model(input_tensor)  # [[B,512],[B,512]]
+
         elif model_n == 'attention':
             frames_embedding_list = model(frames)  # [[B,512],[B,512]]
         # print(len(frames_embedding_list))
@@ -471,7 +406,7 @@ if __name__ == '__main__':
             pred_indices = torch.argmax(sim_logits_softmax, dim=1)
             set_pred.add(pred_indices[0].tolist())
             set_true.add(gt_indices[0].tolist())
-            # 比较预测结果的索引与 ground truth 的索引，得到一个布尔张量
+
             correct_predictions = torch.eq(pred_indices, gt_indices)
             num_correct = torch.sum(correct_predictions).item()
             if num_correct == 1:
