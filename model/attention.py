@@ -32,7 +32,7 @@ class TransformerEncoder(nn.Module):
         ])
 
         # self.in_linear = nn.Linear(input_dim, hidden_dim)
-        self.out_linear = nn.Linear(hidden_dim, 768)
+        self.out_linear = nn.Linear(hidden_dim, input_dim)
 
         # 多层自注意力机制
         self.self_attention_layers = nn.ModuleList([

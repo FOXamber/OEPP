@@ -1,6 +1,4 @@
-# @Author:Yilu Wu
-# @Time:2024/2/26
-# @Description:
+
 import torch
 import yaml
 import os
@@ -42,7 +40,8 @@ def task_match(gt_action, pre_action, task_info):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, default="attention_config.yaml")
     # parser.add_argument('--T',type=int, default=3)
     # parser.add_argument('--split', type=int, default=1)
     # parser.add_argument('--feat', type=str, default='videoclip')
@@ -50,8 +49,7 @@ if __name__ == '__main__':
     # parser.add_argument('--epochs', type=int,default=200)
     # parser.add_argument('--xita', type=float,default=0.2)
     #
-    # args = parser.parse_args()
-    #
+    args = parser.parse_args()
     # xita = args.xita
     # split = args.split
     # T = args.T #T=3,4,5,6
@@ -59,7 +57,7 @@ if __name__ == '__main__':
     # model_n = args.model
     # epochs = args.epochs  # 50个epoch差不多了
 
-    with open('config.yaml','r') as file:
+    with open(args.config,'r') as file:
         config = yaml.safe_load(file)
 
     # xita = config['loss']['xita']
@@ -82,28 +80,28 @@ if __name__ == '__main__':
         file.write(output_config)
 
 
-    with open('/data0/wuyilu/otpp/data_p_1114/task_info.json') as f:
+    with open('data/task_info.json') as f:
         task_info = json.load(f)
-    with open('/data0/wuyilu/otpp/data_p_1114/base_action_pool_' + str(split) + '.json') as f:
+    with open('data/base_action_pool_' + str(split) + '.json') as f:
         train_action_pool = json.load(f)
-    with open('/data0/wuyilu/otpp/data_p_1114/novel_action_pool_' + str(split) + '.json') as f:
+    with open('data/novel_action_pool_' + str(split) + '.json') as f:
         test_action_pool = json.load(f)
-    with open('/data0/wuyilu/otpp/data_p_1114/total_action_pool.json') as f:
+    with open('data/total_action_pool.json') as f:
         total_action_pool = json.load(f)
     print("train_action_pool_size: ", len(train_action_pool))
     print("test_action_pool_size: ", len(test_action_pool))
     print("total_action_pool_size: ", len(total_action_pool))
 
     if feat == 's3d':
-        with open('/data0/wuyilu/otpp/s3d/action_feat_dict.json') as f:
+        with open('data/s3d_action_feat_dict.json') as f:
             actions_text_dict = json.load(f)
         feat_dim = 512
     elif feat == 'videoclip':
-        with open('/data0/wuyilu/data/OEPP_videoclip/action_feat_dict.json') as f:
+        with open('data/vc_action_feat_dict.json') as f:
             actions_text_dict = json.load(f)
         feat_dim = 768
-    else: #其他特征，目前没有
-        with open('/data0/wuyilu/otpp/s3d/action_feat_dict.json') as f:
+    else:
+        with open('data/action_feat_dict.json') as f:
             actions_text_dict = json.load(f)
         feat_dim = 512
 
@@ -115,15 +113,11 @@ if __name__ == '__main__':
     print(total_text_tensor.shape)
     #文本特征先存储，train/test/total
 
-    train_train_dataset = Seq_action(root='/data0/wuyilu/otpp/data_p_1114',split=split,feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=0)
-    test_novel_dataset = Seq_action(root='/data0/wuyilu/otpp/data_p_1114',split=split, feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=1)
-    test_base_dataset = Seq_action(root='/data0/wuyilu/otpp/data_p_1114',split=split, feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=2)
-    train_val_dataset = Seq_action(root='/data0/wuyilu/otpp/data_p_1114', split=split, feat=feat, T=T, is_pad=is_pad,
+    train_train_dataset = Seq_action(root='data/',split=split,feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=0)
+    test_novel_dataset = Seq_action(root='data/',split=split, feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=1)
+    test_base_dataset = Seq_action(root='data/',split=split, feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=2)
+    train_val_dataset = Seq_action(root='data/', split=split, feat=feat, T=T, is_pad=is_pad,
                                    is_total=0, is_val=3)
-    # test_dataset_2 = Seq_action(root='/data1/wuyilu/otpp/data_p_1114', split=split, feat=feat, T=T, is_pad=1, is_total=1,
-    #                           is_val=1)
-    # val_dataset_2 = Seq_action(root='/data1/wuyilu/otpp/data_p_1114', split=split, feat=feat, T=T, is_pad=1, is_total=1,
-    #                          is_val=2)
 
     print("train_train: ",len(train_train_dataset))
     print("test_base: ",len(test_base_dataset))

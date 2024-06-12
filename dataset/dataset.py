@@ -46,6 +46,7 @@ class Video(torch.utils.data.Dataset):
     def __getitem__(self, index):
         video_id = self.json_data[index]
 
+        # feature path
         if self.feat == 's3d':
             if video_id['dataset'] == 'COIN':
                 name = video_id['task_name'] + '_' + str(video_id['task_id_old']) + '_' + video_id['vid'] + '.npy'
@@ -99,10 +100,10 @@ class Seq_action(torch.utils.data.Dataset):
                  root,
                  split,
                  feat,
-                 T,#T,action动作的个数
-                 is_pad,#动作个数较少的序列是否需要补充动作
-                 is_total,#是否是total的动作池子
-                 is_val#训练集/测试集/验证集
+                 T,#T,num of actions
+                 is_pad,
+                 is_total,
+                 is_val
                  ):
         self.root = root
         self.split = split
@@ -115,10 +116,10 @@ class Seq_action(torch.utils.data.Dataset):
         self.seq_list = []
         print("len of videos: ", len(self.videos))
         if self.feat == 'videoclip':
-            with open('/data0/wuyilu/data/OEPP_videoclip/action_feat_dict.json') as f:
+            with open('data/vc_action_feat_dict.json') as f:
                 self.actions_text_dict = json.load(f)
         elif self.feat == 's3d':
-            with open('/data0/wuyilu/otpp/s3d/action_feat_dict.json') as f:
+            with open('data/s3d_action_feat_dict.json') as f:
                 self.actions_text_dict = json.load(f)
 
         for video in self.videos:
@@ -147,13 +148,13 @@ class Seq_action(torch.utils.data.Dataset):
 
     def get_labels(self,actions):
         if self.is_val == 0 or self.is_val == 2 or self.is_val == 3:  # 训练集和验证集是train_action_pool
-            with open('/data0/wuyilu/otpp/data_p_1114/base_action_pool_' + str(self.split) + '.json') as f:
+            with open('data/base_action_pool_' + str(self.split) + '.json') as f:
                 self.action_pool = json.load(f)
         else:
-            with open('/data0/wuyilu/otpp/data_p_1114/novel_action_pool_' + str(self.split) + '.json') as f:
+            with open('data/novel_action_pool_' + str(self.split) + '.json') as f:
                 self.action_pool = json.load(f)
         if self.is_total == 1:
-            with open('/data0/wuyilu/otpp/data_p_1114/total_action_pool.json') as f:
+            with open('data/total_action_pool.json') as f:
                 self.action_pool = json.load(f)
         l = torch.zeros(self.T,dtype=int)
         for index in range(len(actions)):
