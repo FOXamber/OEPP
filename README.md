@@ -37,7 +37,9 @@ Our data splits and annotations are under `data`.
 
 `conda activate oepp`
 
-`conda install --file requirements.txt`
+`pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
+
+`pip install -r requirements.txt`
 
 ## Download features
 
