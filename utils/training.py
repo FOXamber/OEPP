@@ -125,11 +125,11 @@ class Trainer(object):
                     sim_logits = sim_logits / 0.1
                     sim_logits_softmax = torch.nn.functional.softmax(sim_logits, dim=1)
                     loss_ce = cost(sim_logits_softmax, label)
-                    loss += m_loss / m_loss.item() * args.para_mse + loss_ce / loss_ce.item() * (1 - args.para_ce)
+                    loss += m_loss / m_loss.item() * args.para_mse + loss_ce / loss_ce.item() * args.para_ce
 
                 loss = loss / self.gradient_accumulate_every
                 loss.backward()
-                losses1.update(loss.item(), bs1)
+                losses1.update(m_loss.item()+loss_ce.item(), bs1)
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 

@@ -400,7 +400,7 @@ def main_worker(gpu, ngpus_per_node, args):
             for times in range(1):
                 acc_top11_t, acc_top51_t, \
                 trajectory_success_rate_meter1_t, MIoU1_meter1_t, MIoU2_meter1_t, \
-                acc_a01_t, acc_aT1_t = validate(test_base_loader, None, None, None, model.ema_model, args, test_text_tensor)
+                acc_a01_t, acc_aT1_t = validate(test_base_loader, None, None, None, model.ema_model, args, train_text_tensor)
 
                 acc_top1_reduced1_t = reduce_tensor(acc_top11_t.cuda()).item()
                 acc_top5_reduced1_t = reduce_tensor(acc_top51_t.cuda()).item()
