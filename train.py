@@ -168,13 +168,6 @@ if __name__ == '__main__':
             action_tensors = action_tensors.cuda()
             if model_n == 'MLP':
                 frames_embedding_list = model(frames)  # [[B,512],[B,512]]
-            # elif model_n == 'attention':
-            #     frames = frames.view(-1, 2, 3 * feat_dim)
-            #     new_frames = torch.zeros(frames.shape[0], T, 3 * feat_dim, dtype=frames.dtype, device=frames.device)
-            #     new_frames[:, 0, :] = frames[:, 0, :]
-            #     new_frames[:, -1, :] = frames[:, -1, :]
-            #     input_tensor = new_frames  # [B,T,3*h_dim]
-            #     frames_embedding_list = model(input_tensor)  # [[B,512],[B,512]]
             elif model_n == 'attention':
                 frames_embedding_list = model(frames)  # [[B,512],[B,512]]
             # print(len(frames_embedding_list))
