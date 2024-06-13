@@ -45,6 +45,7 @@ Our data splits and annotations are under `data`.
 
 Download the features [link](https://drive.google.com/drive/folders/1IKrEnPhIvQhBN-tiIvtn_bG6EtDE8bNs?usp=drive_link)
 and modify the path to the features in the `dataset/dataset.py Line51-62`.
+The S3D feature is extracted by [P3IV](https://github.com/JoeHEZHAO/procedure-planing).
 Note that our videoclip features are currently only available for OEPP. We will release the complete features as soon as possible.
 
 ## Training
