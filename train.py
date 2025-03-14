@@ -100,7 +100,6 @@ if __name__ == '__main__':
     print(train_text_tensor.shape)
     print(test_text_tensor.shape)
     print(total_text_tensor.shape)
-    #文本特征先存储，train/test/total
 
     train_train_dataset = Seq_action(root='data/',split=split,feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=0)
     test_novel_dataset = Seq_action(root='data/',split=split, feat=feat, T=T, is_pad=is_pad, is_total=0, is_val=1)
